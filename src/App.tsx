@@ -1,7 +1,5 @@
-import React from 'react';
 import Characters from './Characters';
-import axios from "axios";
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const queryClient = new QueryClient();
 
