@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import axios from "axios";
-import { useQuery, useQueries } from 'react-query';
+import { useQueries } from 'react-query';
 
 export interface Character {
   name: string,
@@ -16,51 +14,31 @@ interface Vehicle {
 
 const ListItem = ({ person }: { person: Character }): JSX.Element => {
 
-  // const [vehicles, setVehicles] = useState<Vehicle[]>([])
-
-  // const getData = async (url: string) => {
-  //   const { data } = await axios.get(url);
-  //   return data;
-  // }
-
-  // useEffect(() => {
-  //   const vehicleData = person.vehicles.map(x => getData(x))
-  //   console.log(vehicleData)
-  //   Promise.all(vehicleData).then(x => setVehicles(x))
-  // }, [])
-
-  const query = (vehicleUrl: string) => {
-    return fetch(vehicleUrl).then(res => res.json())
-  }
-
-  const { isLoading, error, data } = useQuery(["getVehicle", vehicleUrl], () => query(vehicleUrl))
-
-  // console.log({ isLoading, data })
-
-  const queries = person.vehicles.map((v, i) => {
-    return {
-      queryKey: ["vehicle", i + 1],
-      queryFn: () => {
-        fetch(v).then(res => res.json())
+  const vehicleData = useQueries<Vehicle[]>(
+    person.vehicles.map((v, i) => {
+      return {
+        queryKey: ["vehicle", i + 1],
+        queryFn: () => {
+          return fetch(v).then(res => res.json())
+        }
       }
-    }
-  })
+    })
+  )
 
-  const { isLoading, error, data } = useQueries({
-    queries: queries
-  })
+  const loading = vehicleData.some(v => v.isLoading)
+  const vehicles = vehicleData.map<Vehicle>(v => v.data as Vehicle).filter(v => v)
 
   return (
     <li>
       <div>
         <p>{person.name}</p>
-        {/* {!pervehicles.length ? <p>LOADING VEHICLES...</p> :
+        {loading ? <p>LOADING VEHICLES...</p> :
           <ul>
             {vehicles.map(v => {
               return <li>{v.name} | {v.model}</li>
             })}
           </ul>
-        } */}
+        }
       </div>
     </li>)
 }
